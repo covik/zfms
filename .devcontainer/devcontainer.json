@@ -1,4 +1,11 @@
 {
   "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
-  "postCreateCommand": "pnpm install --frozen-lockfile"
+  "postCreateCommand": "pnpm install --frozen-lockfile",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "biomejs.biome"
+      ]
+    }
+  }
 }
