@@ -1,48 +1,29 @@
-import * as fs from "node:fs";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useRef } from "react";
+import "maplibre-gl/dist/maplibre-gl.css";
+import * as maplibre from "maplibre-gl";
 
-const filePath = "count.txt";
-
-async function readCount() {
-	return parseInt(
-		await fs.promises.readFile(filePath, "utf-8").catch(() => "0"),
-		10,
-	);
-}
-
-const getCount = createServerFn({
-	method: "GET",
-}).handler(() => {
-	return readCount();
-});
-
-const updateCount = createServerFn({ method: "POST" })
-	.inputValidator((d: number) => d)
-	.handler(async ({ data }) => {
-		const count = await readCount();
-		await fs.promises.writeFile(filePath, `${count + data}`);
-	});
+const CENTER_OF_THE_WORLD = { lat: 44.5, lng: 16.9 } as const;
 
 export const Route = createFileRoute("/")({
 	component: Home,
-	loader: async () => await getCount(),
 });
 
 function Home() {
-	const router = useRouter();
-	const state = Route.useLoaderData();
+	const mapContainer = useRef<HTMLDivElement | null>(null);
 
-	return (
-		<button
-			type="button"
-			onClick={() => {
-				updateCount({ data: 1 }).then(() => {
-					router.invalidate();
-				});
-			}}
-		>
-			Add 1 to {state}?
-		</button>
-	);
+	useEffect(() => {
+		if (!mapContainer.current) return;
+
+		const map = new maplibre.Map({
+			container: mapContainer.current,
+			style: "https://demotiles.maplibre.org/style.json",
+			center: CENTER_OF_THE_WORLD,
+			zoom: 5,
+		});
+
+		return () => map.remove();
+	}, []);
+
+	return <div ref={mapContainer} style={{ width: "100%", height: "100%" }} />;
 }
