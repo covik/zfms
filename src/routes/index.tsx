@@ -20,7 +20,13 @@ function Home() {
 			style: "https://demotiles.maplibre.org/style.json",
 			center: CENTER_OF_THE_WORLD,
 			zoom: 5,
-		});
+		}).addControl(
+			new maplibre.NavigationControl({
+				showCompass: true,
+				showZoom: true,
+				visualizePitch: true,
+			}),
+		);
 
 		return () => map.remove();
 	}, []);
